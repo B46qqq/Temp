@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.Negotiate;
-using Microsoft.AspNetCore.Server.IISIntegration;
 
 public class Startup
 {
@@ -26,8 +25,7 @@ public class Startup
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials()
-                .WithOrigins(ConfigRoot.GetSection("CorsOrigins").Get<string[]>()))
-                ;
+                .WithOrigins(ConfigRoot.GetSection("CorsOrigins").Get<string[]>() ?? Array.Empty<string>()));
         });
         services.AddAuthentication(configureOptions =>
         {

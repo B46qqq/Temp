@@ -1,3 +1,4 @@
+using System.Security.Principal;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -24,6 +25,8 @@ public class WeatherForecastController : WebControllerBase
     public IEnumerable<WeatherForecast> Get()
     {
         var p = HttpContext.User;
+        var userInfo = p?.Identity as WindowsIdentity;
+        var roles = GetRoles();
 
         return Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
@@ -32,5 +35,22 @@ public class WeatherForecastController : WebControllerBase
             Summary = Summaries[Random.Shared.Next(Summaries.Length)]
         })
         .ToArray();
+    }
+
+    [AllowAnonymous]
+    [HttpPost(Name = "NoAuthNeeded")]
+    public IActionResult NoAuthNeeded()
+    {
+        return Ok("hello world");
+    }
+
+    private IEnumerable<string> GetRoles()
+    {
+        var u = HttpContext.User?.Identity as WindowsIdentity;
+        if (u == null) return Array.Empty<string>();
+
+        return u.Groups
+            .Select(g => g.Translate(typeof(NTAccount)).Value)
+            .ToArray();
     }
 }
